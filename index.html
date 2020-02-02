@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>MiniMax Algorithm Test with Tic Tac Toe</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        max-height: 100vh;
+        overflow: hidden;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #container {
+        margin: 100px auto;
+        width: 306px;
+        height: 306px;
+        border: 6px solid blue;
+        padding: 0;
+      }
+
+      .row {
+        height: 100px;
+        margin: 0;
+      }
+
+      .row div {
+        display: inline-block;
+        height: 100px;
+        width: 100px;
+        border: 1px solid blue;
+        margin: 0;
+        padding: 0;
+        float: left;
+        text-align: center;
+        font-size: 66px;
+        font-family: arial;
+        font-family: cursive;
+      }
+
+      #gameStatus {
+        width: 100%;
+        position: absolute;
+        background: #000;
+        color: #fff;
+        text-align: center;
+        font-size: 24px;
+        display: none;
+        top: 0;
+        left: 0;
+      }
+
+      #gameStatus span {
+        display: inline-block;
+        margin-top: 100px;
+        font-family: cursive;
+      }
+
+      #gameStatus button {
+        background: #005eff;
+        border: none;
+        padding: 5px 10px;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 3px;
+        margin-top: 20px;
+      }
+
+      #startingStatus {
+        text-align: center;
+        font-size: 20px;
+        padding-top: 20px;
+        font-weight: 600;
+        position: absolute;
+        width: 100%;
+        top: 0;
+        font-family: cursive;
+      }
+
+      #footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding-bottom: 5px;
+        font-family: cursive;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="startingStatus">Machine's turn!</div>
+    <div id="container">
+      <div class="row">
+        <div id="row1col1"></div>
+        <div id="row1col2"></div>
+        <div id="row1col3"></div>
+      </div>
+      <div class="row">
+        <div id="row2col1"></div>
+        <div id="row2col2"></div>
+        <div id="row2col3"></div>
+      </div>
+      <div class="row">
+        <div id="row3col1"></div>
+        <div id="row3col2"></div>
+        <div id="row3col3"></div>
+      </div>
+    </div>
+
+    <div id="gameStatus">
+      <span id="status"></span><br />
+      <button id="restart">Try again</button>
+    </div>
+    <div id="footer">Made with ❤ by A.Z.T.</div>
+    <script>
+      var gameStatusDiv = document.getElementById("gameStatus");
+      gameStatusDiv.style.height = window.innerHeight + "px";
+      // gameStatusDiv.style.left = (window.innerWidth - 300) / 2 + "px";
+
+      var restartBtn = document.getElementById("restart");
+
+      restartBtn.addEventListener("click", function() {
+        gameStatusDiv.style.display = "none";
+        setNewPattern(sampleData);
+        if (Math.random() > 0.5) {
+          currentPlayer = "machine";
+          document.getElementById("startingStatus").innerHTML =
+            "Machine's Turn";
+          setTimeout(machineMove, 1000);
+        } else {
+          currentPlayer = "human";
+          document.getElementById("startingStatus").innerHTML = "Your Turn";
+        }
+      });
+
+      var currentPlayer = "machine";
+
+      // Add event listener to every square of board
+      for (var i = 1; i <= 3; i++) {
+        for (var n = 1; n <= 3; n++) {
+          document
+            .getElementById("row" + i + "col" + n)
+            .addEventListener("click", function(e) {
+              if (currentPlayer == "human") {
+                e.target.textContent = "O";
+                currentPlayer = "machine";
+                document.getElementById("startingStatus").innerHTML =
+                  "Machine's Turn";
+                if (checkWin(getCurrentPattern(), "O")) {
+                  endGame("human");
+                } else if (checkWin(getCurrentPattern(), "X")) {
+                  endGame("machine");
+                } else if (checkDraw(getCurrentPattern())) {
+                  endGame("tie");
+                } else {
+                  setTimeout(machineMove, 1000);
+                }
+              }
+            });
+        }
+      }
+
+      // Collect the values of every square and returns the values as an array
+      function getCurrentPattern() {
+        var pattern = [
+          [" ", " ", " "],
+          [" ", " ", " "],
+          [" ", " ", " "]
+        ];
+        for (var i = 0; i < pattern.length; i++) {
+          for (var n = 0; n < pattern[i].length; n++) {
+            pattern[i][n] = document.getElementById(
+              "row" + (i + 1) + "col" + (n + 1)
+            ).innerText;
+          }
+        }
+
+        return pattern;
+      }
+
+      // Sets the new pattern to the board
+      function setNewPattern(pattern) {
+        for (var i = 1; i <= 3; i++) {
+          for (var n = 1; n <= 3; n++) {
+            document.getElementById("row" + i + "col" + n).textContent =
+              pattern[i - 1][n - 1];
+          }
+        }
+      }
+
+      var sampleData = [
+        ["", "", ""],
+        ["", "", ""],
+        [" ", "", ""]
+      ];
+
+      function clonePattern(oldPattern) {
+        var pattern = [
+          [" ", " ", " "],
+          [" ", " ", " "],
+          [" ", " ", " "]
+        ];
+        for (var i = 0; i < oldPattern.length; i++) {
+          for (var n = 0; n < oldPattern[i].length; n++) {
+            pattern[i][n] = oldPattern[i][n];
+          }
+        }
+
+        return pattern;
+      }
+
+      function checkWin(pattern, winner) {
+        if (
+          (pattern[0][0] == winner &&
+            pattern[0][1] == winner &&
+            pattern[0][2] == winner) ||
+          (pattern[1][0] == winner &&
+            pattern[1][1] == winner &&
+            pattern[1][2] == winner) ||
+          (pattern[2][0] == winner &&
+            pattern[2][1] == winner &&
+            pattern[2][2] == winner) ||
+          (pattern[0][0] == winner &&
+            pattern[1][0] == winner &&
+            pattern[2][0] == winner) ||
+          (pattern[0][1] == winner &&
+            pattern[1][1] == winner &&
+            pattern[2][1] == winner) ||
+          (pattern[0][2] == winner &&
+            pattern[1][2] == winner &&
+            pattern[2][2] == winner) ||
+          (pattern[0][0] == winner &&
+            pattern[1][1] == winner &&
+            pattern[2][2] == winner) ||
+          (pattern[0][2] == winner &&
+            pattern[1][1] == winner &&
+            pattern[2][0] == winner)
+        ) {
+          return true;
+        }
+        return false;
+      }
+
+      function checkDraw(pattern) {
+        var draw = true;
+        for (var i = 0; i < 3; i++) {
+          for (var j = 0; j < 3; j++) {
+            if (!pattern[i][j]) {
+              draw = false;
+            }
+          }
+        }
+        return draw;
+      }
+
+      var bestMovePattern = null;
+      function minimax(pattern, depth, maximizingPlayer) {
+        var score = 0;
+
+        if (maximizingPlayer) {
+          var maxScore = -Infinity;
+          for (var i = 0; i < 3; i++) {
+            for (var n = 0; n < 3; n++) {
+              if (!pattern[i][n]) {
+                var newPattern = clonePattern(pattern);
+                newPattern[i][n] = "X";
+
+                if (checkWin(newPattern, "X")) {
+                  score = 100 - depth;
+                } else if (checkWin(newPattern, "O")) {
+                  score = -(100 - depth);
+                } else {
+                  score = minimax(newPattern, depth + 1, false);
+                }
+                maxScore = Math.max(maxScore, score);
+                if (depth == 0) {
+                  if (maxScore == score) {
+                    bestMovePattern = newPattern;
+                  }
+                  // console.log(maxScore);
+                }
+              }
+            }
+          }
+          return maxScore;
+        } else {
+          var minScore = Infinity;
+          for (var i = 0; i < pattern.length; i++) {
+            for (var n = 0; n < pattern[i].length; n++) {
+              if (!pattern[i][n]) {
+                var newPattern = clonePattern(pattern);
+                newPattern[i][n] = "O";
+
+                if (checkWin(newPattern, "X")) {
+                  score = 100 - depth;
+                } else if (checkWin(newPattern, "O")) {
+                  score = depth - 100;
+                } else {
+                  score = minimax(newPattern, depth + 1, true);
+                }
+
+                minScore = Math.min(minScore, score);
+              }
+            }
+          }
+
+          return minScore;
+        }
+      }
+
+      function endGame() {
+        setTimeout(function() {}, 1000);
+      }
+
+      function machineMove() {
+        if (currentPlayer == "machine") {
+          var pattern = getCurrentPattern();
+          minimax(pattern, 0, true);
+          setNewPattern(bestMovePattern);
+          if (checkWin(bestMovePattern, "O")) {
+            endGame("human");
+          } else if (checkWin(bestMovePattern, "X")) {
+            endGame("machine");
+          } else if (checkDraw(bestMovePattern)) {
+            endGame("tie");
+          } else {
+            currentPlayer = "human";
+          }
+          document.getElementById("startingStatus").innerHTML = "Your Turn";
+        }
+      }
+
+      function endGame(winner) {
+        var status =
+          winner == "machine"
+            ? "You Lost..<br/>Better Luck Next Time"
+            : winner == "human"
+            ? "~Congratulations~<br/>You Win!!!"
+            : "It's tie!!";
+        gameStatusDiv.style.display = "block";
+        document.getElementById("status").innerHTML = status;
+      }
+
+      machineMove();
+    </script>
+  </body>
+</html>
