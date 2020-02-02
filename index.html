@@ -50,6 +50,7 @@
         display: none;
         top: 0;
         left: 0;
+        z-index: 100;
       }
 
       #gameStatus span {
@@ -87,6 +88,10 @@
         padding-bottom: 5px;
         font-family: cursive;
       }
+
+      a {
+        color: #027431;
+      }
     </style>
   </head>
   <body>
@@ -111,9 +116,13 @@
 
     <div id="gameStatus">
       <span id="status"></span><br />
-      <button id="restart">Try again</button>
+      <button id="restart">Play Again</button>
     </div>
-    <div id="footer">Made with ❤ by A.Z.T.</div>
+    <div id="footer">
+      <a href="https://github.com/Adnan-Toky/TicTacToe/blob/master/index.html"
+        >View Source Code</a
+      ><br />Made with ❤ by Adnan Zawad Toky
+    </div>
     <script>
       var gameStatusDiv = document.getElementById("gameStatus");
       gameStatusDiv.style.height = window.innerHeight + "px";
